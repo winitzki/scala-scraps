@@ -4,7 +4,7 @@ import scala.annotation.tailrec
 import scala.reflect.ClassTag
 
 object Data {
-  /*
+  /* Array is extremely slow! Vector is better.
     type Coll[T] = Array[T]
 
     def EmptyColl[T: ClassTag]: Coll[T] = Array[T]()
@@ -22,7 +22,10 @@ object Data {
 
   def CollFill[T: ClassTag](n: Int)(x: ⇒ T): Coll[T] = Vector.fill(n)(x)
 
-
+  // by Slawek Kruczek
+  /* interleave sequences, i.e.
+```((a, b, c), (d), (e, f)) -> (a, d, e, b, f, c)```
+   */
   def interleave[T: ClassTag](what: Coll[Coll[T]]): Coll[T] = {
 
     val iterators = what.map(_.iterator)
@@ -37,7 +40,7 @@ object Data {
   }
 
   def interleaveR[T](what: Coll[Coll[T]])(implicit ev: ClassTag[T]): Coll[T] = {
-
+    // by Luis Medina
     @tailrec
     def interleaveRec(what: Coll[Coll[T]], accum: Coll[T] = EmptyColl[T](ev)): Coll[T] = {
       if (what.isEmpty) {
@@ -51,6 +54,7 @@ object Data {
     interleaveRec(what)
   }
 
+  // by Yuriy Polyulya
   def interleaveY[T](what: Vector[Vector[T]], accum: Vector[T] = Vector.empty): Vector[T] = {
     if (what.isEmpty) {
       accum
@@ -65,6 +69,7 @@ object Data {
     }
   }
 
+  // by Slawek Kruczek
   def interleaveZ[T](what: Seq[Seq[T]], accum: Vector[T] = Vector.empty): Seq[T] = {
 
     val remaining = what.filter(_.nonEmpty)
